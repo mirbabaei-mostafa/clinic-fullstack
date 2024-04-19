@@ -1,7 +1,5 @@
-import messageModel from './messageModel';
 import validator from 'validator';
 import dotenv from 'dotenv';
-import bcrypt from 'bcrypt';
 import mongoose, { Schema, model, connect, Types, ObjectId } from 'mongoose';
 
 dotenv.config();

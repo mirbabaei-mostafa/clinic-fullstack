@@ -9,6 +9,9 @@ import JWTVerification from './middlewares/jwt';
 import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
 import messageRouter from './routes/messageRouter';
+import userRouter from './routes/userRouter';
+import { errorMiddleware } from './middlewares/errorHandler';
+import peopleRouter from './routes/peoplesRouter';
 
 const app: Application = express();
 
@@ -40,12 +43,16 @@ cloudinary.v2.config({
 });
 
 app.use('/message', messageRouter);
+app.use('/users', userRouter);
+app.use('/peoples', peopleRouter);
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.log(err);
-  const errStatus: number = err.status || 500;
-  const errMessage: string = err.message || 'InternalServerError';
-  return res
-    .status(errStatus)
-    .send({ success: false, message: errMessage, status: errStatus });
-});
+app.use(errorMiddleware);
+
+// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+//   console.log(err);
+//   const errStatus: number = err.status || 500;
+//   const errMessage: string = err.message || 'InternalServerError';
+//   return res
+//     .status(errStatus)
+//     .send({ success: false, message: errMessage, status: errStatus });
+// });

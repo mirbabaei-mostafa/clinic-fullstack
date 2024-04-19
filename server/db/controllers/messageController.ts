@@ -7,6 +7,8 @@ import {
   validationResult,
 } from 'express-validator';
 import dotenv from 'dotenv';
+import catchAsyncError from '../../middlewares/catchAsyncError';
+import ErrorHandler from '../../middlewares/errorHandler';
 
 dotenv.config();
 
@@ -20,7 +22,12 @@ export const saveMessage = async (
   const validateRes: Result<ValidationError> = validationResult(req);
   if (!validateRes.isEmpty()) {
     // Request is not valid
-    return res.status(400).json({ error: validateRes.array() });
+    return res.status(400).json({
+      error: validateRes
+        .array()
+        .map((item) => item.msg)
+        .join('|'),
+    });
   } else {
     try {
       // Save new message
@@ -33,18 +40,20 @@ export const saveMessage = async (
         message: req.body.message,
       });
       await newMessage.save();
-
-      //   // Send verification email
-      //   const mailToken = jwt.sign(
-      //     { id: newUser.id.toString() },
-      //     process.env.JWT_TOKEN as string,
-      //     { expiresIn: '30m' }
-      //   );
-      //   const url: string = process.env.BASEURL + '/activate/' + mailToken;
-      //   await sendVerification(newUser.email, newUser.username, url);
+      // // OR
+      // const createMessage = await messageModel.create({
+      //   fname: req.body.fname,
+      //   lname: req.body.lname,
+      //   email: req.body.email,
+      //   phone: req.body.phone,
+      //   title: req.body.title,
+      //   message: req.body.message,
+      // });
 
       // Successfull save message
-      return res.status(201).json({ message: 'SuccessSendMessage' });
+      return res
+        .status(201)
+        .json({ success: true, message: 'SuccessSendMessage' });
     } catch (err) {
       // Save Message
       // res.status(500).json({ error: validateRes.array() });
@@ -52,3 +61,36 @@ export const saveMessage = async (
     }
   }
 };
+
+export const createMessage = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const validateRes: Result<ValidationError> = validationResult(req);
+    if (!validateRes.isEmpty()) {
+      // Request is not valid
+      // return res.status(400).json({ error: validateRes.array() });
+      return next(
+        new ErrorHandler(
+          validateRes
+            .array()
+            .map((error) => error.msg)
+            .join('|'),
+          400
+        )
+      );
+    } else {
+      const createMessage = await messageModel.create({
+        fname: req.body.fname,
+        lname: req.body.lname,
+        email: req.body.email,
+        phone: req.body.phone,
+        title: req.body.title,
+        message: req.body.message,
+      });
+
+      // Successfull save message
+      return res
+        .status(201)
+        .json({ success: true, message: 'SuccessSendMessage' });
+    }
+  }
+);
