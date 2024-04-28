@@ -1,14 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
-import messageModel, { MessageSchema } from '../models/messageModel';
+import { NextFunction, Request, Response } from "express";
+import messageModel, { MessageSchema } from "../models/messageModel";
 import {
   Result,
   ValidationError,
   cookie,
   validationResult,
-} from 'express-validator';
-import dotenv from 'dotenv';
-import catchAsyncError from '../../middlewares/catchAsyncError';
-import ErrorHandler from '../../middlewares/errorHandler';
+} from "express-validator";
+import dotenv from "dotenv";
+import catchAsyncError from "../../middlewares/catchAsyncError";
+import ErrorHandler from "../../middlewares/errorHandler";
 
 dotenv.config();
 
@@ -26,7 +26,7 @@ export const saveMessage = async (
       error: validateRes
         .array()
         .map((item) => item.msg)
-        .join('|'),
+        .join("|"),
     });
   } else {
     try {
@@ -53,7 +53,7 @@ export const saveMessage = async (
       // Successfull save message
       return res
         .status(201)
-        .json({ success: true, message: 'SuccessSendMessage' });
+        .json({ success: true, message: "SuccessSendMessage" });
     } catch (err) {
       // Save Message
       // res.status(500).json({ error: validateRes.array() });
@@ -73,7 +73,7 @@ export const createMessage = catchAsyncError(
           validateRes
             .array()
             .map((error) => error.msg)
-            .join('|'),
+            .join("|"),
           400
         )
       );
@@ -90,7 +90,23 @@ export const createMessage = catchAsyncError(
       // Successfull save message
       return res
         .status(201)
-        .json({ success: true, message: 'SuccessSendMessage' });
+        .json({ success: true, message: "SuccessSendMessage" });
     }
   }
 );
+
+// Get all Messages
+// If request was not valid, will return Error
+export const getAllMessage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const allMessages = await messageModel.find();
+    // Successfull fetch messages from DB and return to frontend
+    return res.status(200).json({ success: true, allMessages });
+  } catch (err: any) {
+    return next(new ErrorHandler(err.message || "InternalServerError", 500));
+  }
+};

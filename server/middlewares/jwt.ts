@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -11,7 +11,7 @@ export interface userRequest extends Request {
   userId: string;
 }
 
-declare module 'express-serve-static-core' {
+declare module "express-serve-static-core" {
   interface Request {
     userId: string;
   }
@@ -29,17 +29,17 @@ const JWTVerification = async (
     req.headers.authorization || req.headers.Authorization;
 
   // Control token is not empty
-  if (!authenticationToken?.toString().startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'TokenNotFound' });
+  if (!authenticationToken?.toString().startsWith("Bearer ")) {
+    return res.status(401).json({ message: "TokenNotFound" });
   }
 
-  const token: string = authenticationToken?.toString().split(' ')[1];
+  const token: string = authenticationToken?.toString().split(" ")[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN as string);
     req.userId = (decoded as any).id;
     return next();
   } catch (err) {
-    res.status(401).json({ error: err, message: 'TokenVerificationFailed' });
+    res.status(401).json({ error: err, message: "TokenVerificationFailed" });
     return next();
   }
 };
