@@ -31,11 +31,75 @@ export const getDoctors = async (
     const foundUser = await userModel.find<UserSchema | undefined>({
       role: 'Doctor',
     });
-    // Doctor dose not exit
+    // Doctors dose not exit
     if (!foundUser) {
       // return res.status(401).json({ error: 'DoctorsIsEmpty' });
       // OR
       return next(new ErrorHandler('DoctorsIsEmpty', 401));
+    }
+    // Trim unneccessary fields
+    // send doctor's list
+    if (foundUser.length > 0) {
+      const resultUserList: UserList[] | undefined = userTrim(
+        foundUser as UserSchema[]
+      );
+      return res.json({ success: true, resultUserList });
+    } else {
+      return res.json({ success: true, resultUserList: [] });
+    }
+  } catch (err: any) {
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
+  }
+};
+
+// Fetch list of users
+export const getUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Find users with role=Doctor
+    const foundUser = await userModel.find<UserSchema | undefined>({
+      role: 'User',
+    });
+    // Users dose not exit
+    if (!foundUser) {
+      // return res.status(401).json({ error: 'UsersIsEmpty' });
+      // OR
+      return next(new ErrorHandler('UsersIsEmpty', 401));
+    }
+    // Trim unneccessary fields
+    // send doctor's list
+    if (foundUser.length > 0) {
+      const resultUserList: UserList[] | undefined = userTrim(
+        foundUser as UserSchema[]
+      );
+      return res.json({ success: true, resultUserList });
+    } else {
+      return res.json({ success: true, resultUserList: [] });
+    }
+  } catch (err: any) {
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
+  }
+};
+
+// Fetch list of Patients
+export const getPatients = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Find patients with role=Doctor
+    const foundUser = await userModel.find<UserSchema | undefined>({
+      role: 'Patient',
+    });
+    // Patients dose not exit
+    if (!foundUser) {
+      // return res.status(401).json({ error: 'PatientsIsEmpty' });
+      // OR
+      return next(new ErrorHandler('PatientsIsEmpty', 401));
     }
     // Trim unneccessary fields
     // send doctor's list

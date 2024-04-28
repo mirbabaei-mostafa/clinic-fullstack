@@ -4,7 +4,7 @@ import { connectDB } from './db/mongodb';
 import mongoose from 'mongoose';
 import { corsOptions, credentialCors } from './utils/corsconfig';
 import cors, { CorsOptions } from 'cors';
-import fileUpload from 'express-fileupload';
+// import fileUpload from 'express-fileupload';
 import JWTVerification from './middlewares/jwt';
 import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
@@ -31,10 +31,11 @@ mongoose.connection.once('open', () => {
 app.use(credentialCors);
 app.use(cors(corsOptions as CorsOptions));
 // app.options("*", cors(corsOptions));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(fileUpload({ useTempFiles: true, tempFileDir: '/tmp/' }));
+// app.use(fileUpload({ useTempFiles: true, tempFileDir: '/tmp/' }));
 
 cloudinary.v2.config({
   cloud_name: process.env.Cloudinary_Cloud_Name,

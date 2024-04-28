@@ -17,11 +17,18 @@ import {
 } from '../db/controllers/userController';
 import JWTVerification from '../middlewares/jwt';
 import changePasswordValidator from '../validators/changePasswordValidator';
+import upload from '../middlewares/multer';
 
 const userRouter: Router = express.Router();
 
+const cpUpload = upload.fields([
+  { name: 'image', maxCount: 1 },
+  { name: 'avatar', maxCount: 1 },
+]);
+
 // Public routes
-userRouter.post('/register', registerValidator, registerUser);
+userRouter.post('/register', cpUpload, registerValidator, registerUser);
+// userRouter.post('/register', registerValidator, registerUser);
 userRouter.post('/auth', authValidator, authUser);
 userRouter.get('/signout', signOut);
 userRouter.get('/renew', renewToken);
