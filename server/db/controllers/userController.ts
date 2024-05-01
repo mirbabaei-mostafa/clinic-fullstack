@@ -1,22 +1,21 @@
-import { NextFunction, Request, Response } from "express";
-import userModel, { UserSchema } from "../models/userModel";
+import { NextFunction, Request, Response } from 'express';
+import userModel, { UserSchema } from '../models/userModel';
 import resetPasswordModel, {
   ResetPasswordSchema,
-} from "../models/resetPasswordModel";
+} from '../models/resetPasswordModel';
 import {
   Result,
   ValidationError,
   cookie,
   validationResult,
-} from "express-validator";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+} from 'express-validator';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import sendVerification, {
   sendResetPasswordCodeByEmail,
-} from "../../utils/mailer";
-import randomstring from "randomstring";
-import ErrorHandler from "../../middlewares/errorHandler";
-import { file } from "googleapis/build/src/apis/file";
+} from '../../utils/mailer';
+import randomstring from 'randomstring';
+import ErrorHandler from '../../middlewares/errorHandler';
 
 dotenv.config();
 
@@ -53,7 +52,7 @@ export const registerUser = async (
         validateRes
           .array()
           .map((item) => item.msg)
-          .join("|"),
+          .join('|'),
         400
       )
     );
@@ -76,17 +75,12 @@ export const registerUser = async (
         ...req.body,
         username: (req.body.fname + req.body.lname).toString().toLowerCase(),
       };
-      console.log(files);
-      if (files) {
-        console.log(userData);
-        if (files["image"][0]?.path) {
-          userData["image"] = files["image"][0]?.path;
-        }
-        //   if (files["avatar"][0]?.path) {
-        //     userData["avatar"] = files["avatar"][0]?.path;
-        //   }
+      if (typeof files['image'] !== 'undefined') {
+        userData['image'] = files['image'][0]?.path;
       }
-      console.log(userData);
+      if (typeof files['avatar'] !== 'undefined') {
+        userData['avatar'] = files['avatar'][0]?.path;
+      }
 
       const newUser = await new userModel(userData);
       await newUser.save();
@@ -95,17 +89,17 @@ export const registerUser = async (
       const mailToken = jwt.sign(
         { id: newUser.id.toString() },
         process.env.JWT_TOKEN as string,
-        { expiresIn: "30m" }
+        { expiresIn: '30m' }
       );
-      const url: string = process.env.BASEURL + "/activate/" + mailToken;
+      const url: string = process.env.BASEURL + '/activate/' + mailToken;
       await sendVerification(newUser.email, newUser.username, url);
 
       // Successfull create new user
-      return res.status(201).json({ message: "SuccessRegisterUser" });
+      return res.status(201).json({ message: 'SuccessRegisterUser' });
     } catch (err: any) {
       // Registring new user faced an error and return Error
       // res.status(500).json({ error: validateRes.array() });
-      return next(new ErrorHandler(err.message || "InternalServerError", 500));
+      return next(new ErrorHandler(err.message || 'InternalServerError', 500));
     }
   }
 };
@@ -122,7 +116,7 @@ export const verifyUser = async (
   if (!token) {
     // return res.status(401).json({ message: 'TokenNotValidated' });
     // OR
-    return next(new ErrorHandler("TokenNotValidated", 400));
+    return next(new ErrorHandler('TokenNotValidated', 400));
   }
 
   try {
@@ -131,33 +125,33 @@ export const verifyUser = async (
     if (!userId) {
       //   return res.status(401).json({ message: 'TokenNotVerifiedOrExpired' });
       // OR
-      return next(new ErrorHandler("TokenNotVerifiedOrExpired", 401));
+      return next(new ErrorHandler('TokenNotVerifiedOrExpired', 401));
     }
 
     const foundUser = await userModel.findById((userId as any).id);
     if (!foundUser) {
       //   return res.status(401).json({ message: 'TokenNotAssignToUser' });
       // OR
-      return next(new ErrorHandler("TokenNotAssignToUser", 401));
+      return next(new ErrorHandler('TokenNotAssignToUser', 401));
     }
 
     // to prevent access when user try to access with another access token
     if (foundUser.id !== req.userId)
       //   return res.status(403).json({ message: 'TokenNotValidated' });
       // OR
-      return next(new ErrorHandler("TokenNotValidated", 403));
+      return next(new ErrorHandler('TokenNotValidated', 403));
 
     if (foundUser!.verify) {
-      return res.status(200).json({ message: "UserWasAlreadyVerified" });
+      return res.status(200).json({ message: 'UserWasAlreadyVerified' });
     } else {
       // foundUser!.verify = true;
       // await foundUser?.save();
       await userModel.findByIdAndUpdate((userId as any).id, { verify: true });
-      return res.status(200).json({ message: "UserActivated" });
+      return res.status(200).json({ message: 'UserActivated' });
     }
   } catch (err: any) {
     // return res.status(401).json({ message: err });
-    return next(new ErrorHandler(err.message || "InternalServerError", 500));
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
   }
 };
 
@@ -173,28 +167,28 @@ export const resendVerification = async (
       if (!foundUser) {
         // return res.status(401).json({ message: 'UserNotFound' });
         // OR
-        return next(new ErrorHandler("UserNotFound", 401));
+        return next(new ErrorHandler('UserNotFound', 401));
       }
 
       if (foundUser.verify === true) {
         // return res.status(400).json({ message: 'UserVerified' });
         // OR
-        return next(new ErrorHandler("UserVerified", 400));
+        return next(new ErrorHandler('UserVerified', 400));
       }
 
       // Send verification email
       const mailToken = jwt.sign(
         { id: foundUser.id.toString() },
         process.env.JWT_TOKEN as string,
-        { expiresIn: "30m" }
+        { expiresIn: '30m' }
       );
-      const url: string = process.env.BASEURL + "/activate/" + mailToken;
+      const url: string = process.env.BASEURL + '/activate/' + mailToken;
       await sendVerification(foundUser.email, foundUser.username, url);
 
       // Successfull create new user
-      return res.status(201).json({ message: "VerificationEmailsended" });
+      return res.status(201).json({ message: 'VerificationEmailsended' });
     } catch (err: any) {
-      return next(new ErrorHandler(err.message || "InternalServerError", 500));
+      return next(new ErrorHandler(err.message || 'InternalServerError', 500));
     }
   }
 };
@@ -216,7 +210,7 @@ export const authUser = async (
         validateRes
           .array()
           .map((item) => item.msg)
-          .join("|"),
+          .join('|'),
         401
       )
     );
@@ -230,14 +224,14 @@ export const authUser = async (
       if (!foundUser) {
         // return res.status(401).json({ error: 'EmailDoseNotExist' });
         // OR
-        return next(new ErrorHandler("EmailDoseNotExist", 401));
+        return next(new ErrorHandler('EmailDoseNotExist', 401));
       }
       // Password entered wrong
       const compareRes = await foundUser.comparePassword(req.body.password);
       if (!compareRes) {
         // return res.status(401).json({ error: 'PasswordIsWrong' });
         // OR
-        return next(new ErrorHandler("PasswordIsWrong", 401));
+        return next(new ErrorHandler('PasswordIsWrong', 401));
       }
 
       // Create access and refresh tokens
@@ -258,10 +252,10 @@ export const authUser = async (
         });
         if (!foundToken) refreshTokenArray = [];
 
-        res.clearCookie("auth_token", {
+        res.clearCookie('auth_token', {
           httpOnly: true,
           secure: true,
-          sameSite: "none",
+          sameSite: 'none',
         });
       }
 
@@ -270,10 +264,10 @@ export const authUser = async (
       await foundUser.save();
 
       // send new refresh token as cookie to client
-      res.cookie("auth_token", refreshToken, {
+      res.cookie('auth_token', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "none",
+        sameSite: 'none',
         maxAge:
           parseInt(process.env.COOKIE_CLIENT_MAXAGE as string) *
           1000 *
@@ -297,7 +291,7 @@ export const authUser = async (
         verify: foundUser.verify,
       });
     } catch (err: any) {
-      return next(new ErrorHandler(err.message || "InternalServerError", 500));
+      return next(new ErrorHandler(err.message || 'InternalServerError', 500));
     }
   }
 };
@@ -315,10 +309,10 @@ export const signOut = async (
   });
 
   // Remove current access cookie
-  res.clearCookie("auth_token", {
+  res.clearCookie('auth_token', {
     httpOnly: true,
     secure: true,
-    sameSite: "none",
+    sameSite: 'none',
     expires: new Date(Date.now()),
   });
 
@@ -347,10 +341,10 @@ export const renewToken = async (
   const oldToken: any = req.cookies?.auth_token;
 
   // Remove current access cookie
-  res.clearCookie("auth_token", {
+  res.clearCookie('auth_token', {
     httpOnly: true,
     secure: true,
-    sameSite: "none",
+    sameSite: 'none',
   });
 
   try {
@@ -376,7 +370,7 @@ export const renewToken = async (
           }
           // return res.sendStatus(403).json({ message: 'Forbiden' });
           // OR
-          return next(new ErrorHandler("Forbiden", 401));
+          return next(new ErrorHandler('Forbiden', 401));
         }
 
         // Remove old refresh token from refresh token array
@@ -391,14 +385,14 @@ export const renewToken = async (
           await foundUser.save();
           //   return res.sendStatus(403);
           // OR
-          return next(new ErrorHandler("Forbiden", 403));
+          return next(new ErrorHandler('Forbiden', 403));
         }
 
         // When occured an error and found user is diffrent with
         if (foundUser._id.toString() !== decoded.id.toString()) {
           //   return res.sendStatus(403);
           // OR
-          return next(new ErrorHandler("UserIsDiffrent", 403));
+          return next(new ErrorHandler('UserIsDiffrent', 403));
         }
 
         // Create new access and refresh tokens
@@ -408,10 +402,10 @@ export const renewToken = async (
         await foundUser.save();
 
         // send new refresh token as cookie to client
-        res.cookie("auth_token", refreshToken, {
+        res.cookie('auth_token', refreshToken, {
           httpOnly: true,
           secure: true,
-          sameSite: "none",
+          sameSite: 'none',
           maxAge:
             parseInt(process.env.COOKIE_CLIENT_MAXAGE as string) *
             1000 *
@@ -443,7 +437,7 @@ export const renewToken = async (
       }
     );
   } catch (err: any) {
-    return next(new ErrorHandler(err.message || "InternalServerError", 500));
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
   }
 };
 
@@ -478,7 +472,7 @@ export const findAccountByEmail = async (
         validateRes
           .array()
           .map((item) => item.msg)
-          .join("|"),
+          .join('|'),
         400
       )
     );
@@ -492,7 +486,7 @@ export const findAccountByEmail = async (
       if (!foundUser) {
         // return res.status(401).json({ error: 'EmailDoseNotExist' });
         // OR
-        return next(new ErrorHandler("EmailDoseNotExist", 401));
+        return next(new ErrorHandler('EmailDoseNotExist', 401));
       }
       // send authenticated user information to client
       return res.json({
@@ -500,7 +494,7 @@ export const findAccountByEmail = async (
         image: foundUser.image,
       });
     } catch (err: any) {
-      return next(new ErrorHandler(err.message || "InternalServerError", 500));
+      return next(new ErrorHandler(err.message || 'InternalServerError', 500));
     }
   }
 };
@@ -514,7 +508,7 @@ export const sendResetPasswordCode = async (
   if (!req.body.email) {
     // return res.status(401).json({ error: 'InvalidEmail' });
     // OR
-    return next(new ErrorHandler("InvalidEmail", 401));
+    return next(new ErrorHandler('InvalidEmail', 401));
   }
   try {
     // Find when the email address exist
@@ -525,7 +519,7 @@ export const sendResetPasswordCode = async (
     if (!foundUser) {
       //   return res.status(401).json({ error: 'EmailDoseNotExist' });
       // OR
-      return next(new ErrorHandler("EmailDoseNotExist", 401));
+      return next(new ErrorHandler('EmailDoseNotExist', 401));
     }
 
     // Remove old reset password code from codes model
@@ -534,7 +528,7 @@ export const sendResetPasswordCode = async (
     // create new code
     const code = randomstring.generate({
       length: 6,
-      charset: "alphabetic",
+      charset: 'alphabetic',
     });
 
     // create new code record in db
@@ -550,10 +544,10 @@ export const sendResetPasswordCode = async (
 
     // send successful message to client
     return res.status(200).json({
-      message: "ResetCodeSended",
+      message: 'ResetCodeSended',
     });
   } catch (err: any) {
-    return next(new ErrorHandler(err.message || "InternalServerError", 500));
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
   }
 };
 
@@ -566,12 +560,12 @@ export const verifyResetCode = async (
   if (!req.body.email) {
     // return res.status(401).json({ error: 'InvalidEmail' });
     // OR
-    return next(new ErrorHandler("InvalidEmail", 401));
+    return next(new ErrorHandler('InvalidEmail', 401));
   }
   if (!req.body.code) {
     // return res.status(401).json({ error: 'CodeIsEmpty' });
     // OR
-    return next(new ErrorHandler("CodeIsEmpty", 401));
+    return next(new ErrorHandler('CodeIsEmpty', 401));
   }
   try {
     // Find when the email address exist
@@ -582,7 +576,7 @@ export const verifyResetCode = async (
     if (!foundUser) {
       //   return res.status(401).json({ error: 'EmailDoseNotExist' });
       // OR
-      return next(new ErrorHandler("EmailDoseNotExist", 401));
+      return next(new ErrorHandler('EmailDoseNotExist', 401));
     }
 
     // Find code by user id
@@ -597,11 +591,11 @@ export const verifyResetCode = async (
     // The code that user enterd is not match with the code in DB
     else {
       return res.status(400).json({
-        message: "CodeIsNotMatch",
+        message: 'CodeIsNotMatch',
       });
     }
   } catch (err: any) {
-    return next(new ErrorHandler(err.message || "InternalServerError", 500));
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
   }
 };
 
@@ -614,12 +608,12 @@ export const resetPassword = async (
   if (!req.body.email) {
     // return res.status(401).json({ error: 'InvalidEmail' });
     // OR
-    return next(new ErrorHandler("InvalidEmail", 401));
+    return next(new ErrorHandler('InvalidEmail', 401));
   }
   if (!req.body.newpassword) {
     // return res.status(401).json({ error: 'PasswordIsEmpty' });
     // OR
-    return next(new ErrorHandler("PasswordIsEmpty", 401));
+    return next(new ErrorHandler('PasswordIsEmpty', 401));
   }
   try {
     // Find when the email address exist
@@ -630,7 +624,7 @@ export const resetPassword = async (
     if (!foundUser) {
       //   return res.status(401).json({ error: 'EmailDoseNotExist' });
       // OR
-      return next(new ErrorHandler("EmailDoseNotExist", 401));
+      return next(new ErrorHandler('EmailDoseNotExist', 401));
     }
 
     // Save new password
@@ -642,10 +636,10 @@ export const resetPassword = async (
 
     // send successful message to client
     return res.status(200).json({
-      message: "SuccessfullyResetPassword",
+      message: 'SuccessfullyResetPassword',
     });
   } catch (err: any) {
-    return next(new ErrorHandler(err.message || "InternalServerError", 500));
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
   }
 };
 
@@ -658,7 +652,7 @@ export const cancelResetPassword = async (
   if (!req.body.email) {
     // return res.status(401).json({ error: 'InvalidEmail' });
     // OR
-    return next(new ErrorHandler("InvalidEmail", 401));
+    return next(new ErrorHandler('InvalidEmail', 401));
   }
   try {
     // Find when the email address exist
@@ -669,7 +663,7 @@ export const cancelResetPassword = async (
     if (!foundUser) {
       //   return res.status(401).json({ error: 'EmailDoseNotExist' });
       // OR
-      return next(new ErrorHandler("EmailDoseNotExist", 401));
+      return next(new ErrorHandler('EmailDoseNotExist', 401));
     }
 
     // Remove old reset password code from codes model
@@ -677,17 +671,17 @@ export const cancelResetPassword = async (
 
     // send successful message to client
     return res.status(200).json({
-      message: "ResetCodeCanceled",
+      message: 'ResetCodeCanceled',
     });
   } catch (err: any) {
-    return next(new ErrorHandler(err.message || "InternalServerError", 500));
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
   }
 };
 
 // Get user role
 const getRole = async (email: string) => {
   if (!email) {
-    return "";
+    return '';
   }
   try {
     // Find when the email address exist
@@ -696,7 +690,7 @@ const getRole = async (email: string) => {
     });
     // Email address dose not exit
     if (!foundUser) {
-      return "";
+      return '';
     }
     return foundUser.role;
   } catch (err: any) {

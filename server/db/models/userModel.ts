@@ -1,9 +1,9 @@
-import userModel from './userModel';
-import validator from 'validator';
-import dotenv from 'dotenv';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import mongoose, { Schema, model, connect, Types, ObjectId } from 'mongoose';
+import userModel from "./userModel";
+import validator from "validator";
+import dotenv from "dotenv";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import mongoose, { Schema, model, connect, Types, ObjectId } from "mongoose";
 
 dotenv.config();
 
@@ -12,6 +12,7 @@ const { ObjectId } = mongoose.Schema;
 export interface UserSchema extends mongoose.Document {
   fname: string;
   lname: string;
+  description: string;
   email: string;
   username: string;
   createUserName(): void;
@@ -20,6 +21,8 @@ export interface UserSchema extends mongoose.Document {
   image: string;
   avatar: string;
   gender: string;
+  nid: string;
+  insuranceid: string;
   phone: string;
   mobile: string;
   address: string;
@@ -35,11 +38,14 @@ export interface UserSchema extends mongoose.Document {
 export interface UserList {
   fname: string;
   lname: string;
+  description: string;
   email: string;
   username: string;
   image: string;
   avatar: string;
   gender: string;
+  nid: string;
+  insuranceid: string;
   phone: string;
   mobile: string;
   address: string;
@@ -58,14 +64,20 @@ const userSchema = new Schema<UserSchema>(
       required: true,
       trim: true,
       text: true,
-      minlength: [3, 'FirstNameAtLeast3Characters'],
+      minlength: [3, "FirstNameAtLeast3Characters"],
     },
     lname: {
       type: String,
       required: true,
       trim: true,
       text: true,
-      minlength: [3, 'LastNameAtLeast3Characters'],
+      minlength: [3, "LastNameAtLeast3Characters"],
+    },
+    description: {
+      type: String,
+      required: false,
+      trim: true,
+      text: true,
     },
     email: {
       type: String,
@@ -73,7 +85,7 @@ const userSchema = new Schema<UserSchema>(
       unique: true,
       trim: true,
       text: true,
-      validate: [validator.isEmail, 'EmailFormatWrong'],
+      validate: [validator.isEmail, "EmailFormatWrong"],
     },
     username: {
       type: String,
@@ -89,17 +101,17 @@ const userSchema = new Schema<UserSchema>(
     },
     image: {
       type: String,
-      default: 'public/images/user-default.png',
+      default: "public/images/user-default.png",
       require: false,
     },
     avatar: {
       type: String,
-      default: 'public/images/avatar-default.png',
+      default: "public/images/avatar-default.png",
       require: false,
     },
     gender: {
       type: String,
-      enum: ['Not Known', 'Male', 'Female', 'Indeterminate'],
+      enum: ["Not Known", "Male", "Female", "Indeterminate"],
       require: true,
       trim: true,
       text: true,
@@ -109,24 +121,24 @@ const userSchema = new Schema<UserSchema>(
       required: true,
       trim: true,
       text: true,
-      minlength: [10, 'PhoneNumberAtLeast10'],
-      maxlength: [11, 'PhoneNumberMax11'],
+      minlength: [10, "PhoneNumberAtLeast10"],
+      maxlength: [11, "PhoneNumberMax11"],
     },
     mobile: {
       type: String,
       required: true,
       trim: true,
       text: true,
-      minlength: [10, 'PhoneNumberAtLeast10'],
-      maxlength: [11, 'PhoneNumberMax11'],
+      minlength: [10, "PhoneNumberAtLeast10"],
+      maxlength: [11, "PhoneNumberMax11"],
     },
     address: {
       type: String,
       required: false,
       trim: true,
       text: true,
-      minlength: [10, 'AddressAtLeast10'],
-      maxlength: [300, 'AddressMax300'],
+      minlength: [10, "AddressAtLeast10"],
+      maxlength: [300, "AddressMax300"],
     },
     birth_year: {
       type: Number,
@@ -145,9 +157,9 @@ const userSchema = new Schema<UserSchema>(
     },
     role: {
       type: String,
-      enum: ['Admin', 'User', 'Doctor', 'Patient'],
+      enum: ["Admin", "User", "Doctor", "Patient"],
       require: false,
-      default: 'Patient',
+      default: "Patient",
     },
     department: {
       type: String,
@@ -166,9 +178,9 @@ const userSchema = new Schema<UserSchema>(
 
 userSchema.index({ email: 1 });
 
-userSchema.pre('save', async function (this: UserSchema, next) {
+userSchema.pre("save", async function (this: UserSchema, next) {
   const user = this;
-  if (!user.isModified('password')) return next();
+  if (!user.isModified("password")) return next();
   try {
     const salt: string = await bcrypt.genSalt(
       parseInt(process.env.SALTLENGHT as string)
@@ -215,6 +227,6 @@ userSchema.methods.generateJWTRefreshToken = function () {
   });
 };
 
-const Users = model<UserSchema>('users', userSchema);
+const Users = model<UserSchema>("users", userSchema);
 
 export default Users;
