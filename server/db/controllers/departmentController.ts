@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from "express";
-import { Result, ValidationError, validationResult } from "express-validator";
-import ErrorHandler from "../../middlewares/errorHandler";
-import departmentModel, { DepartmentSchema } from "../models/departmentModel";
+import { NextFunction, Request, Response } from 'express';
+import { Result, ValidationError, validationResult } from 'express-validator';
+import ErrorHandler from '../../middlewares/errorHandler';
+import departmentModel, { DepartmentSchema } from '../models/departmentModel';
 
 // Create Department
 // If request was not valid, will return Error
@@ -17,7 +17,7 @@ export const createDepatment = async (
         validateRes
           .array()
           .map((item) => item.msg)
-          .join("|"),
+          .join('|'),
         400
       )
     );
@@ -28,9 +28,9 @@ export const createDepatment = async (
       const departmentData = {
         ...req.body,
         avatar:
-          typeof files["avatar"] !== "undefined"
-            ? files["avatar"][0]?.path
-            : "",
+          typeof files['avatar'] !== 'undefined'
+            ? files['avatar'][0]?.path
+            : '',
       };
 
       await departmentModel.create(departmentData);
@@ -38,10 +38,10 @@ export const createDepatment = async (
       // Successfull save department
       return res
         .status(201)
-        .json({ success: true, message: "SuccessfullSaveDepartment" });
+        .json({ success: true, message: 'SuccessfullSaveDepartment' });
     } catch (err: any) {
       // Create new department faced an error and return Error
-      return next(new ErrorHandler(err.message || "InternalServerError", 500));
+      return next(new ErrorHandler(err.message || 'InternalServerError', 500));
     }
   }
 };
@@ -60,7 +60,7 @@ export const updateDepatment = async (
         validateRes
           .array()
           .map((item) => item.msg)
-          .join("|"),
+          .join('|'),
         400
       )
     );
@@ -69,15 +69,15 @@ export const updateDepatment = async (
       const { id } = req.params;
       const foundDepartment = departmentModel.findById(id);
       if (!foundDepartment) {
-        return next(new ErrorHandler("DepartmentNotFound", 404));
+        return next(new ErrorHandler('DepartmentNotFound', 404));
       }
       const files: any = req.files;
       // Save edited department
       const departmentData = {
         ...req.body,
       };
-      if (typeof files["avatar"] !== "undefined") {
-        departmentData["avatar"] = files["avatar"][0]?.path;
+      if (typeof files['avatar'] !== 'undefined') {
+        departmentData['avatar'] = files['avatar'][0]?.path;
       }
       await departmentModel.findByIdAndUpdate(id, req.body, {
         new: true,
@@ -88,10 +88,10 @@ export const updateDepatment = async (
       // Successfully update department
       return res
         .status(201)
-        .json({ success: true, message: "SuccessfullUpdateDepartment" });
+        .json({ success: true, message: 'SuccessfullUpdateDepartment' });
     } catch (err: any) {
       // Create new department faced an error and return Error
-      return next(new ErrorHandler(err.message || "InternalServerError", 500));
+      return next(new ErrorHandler(err.message || 'InternalServerError', 500));
     }
   }
 };
@@ -107,7 +107,7 @@ export const deleteDepatment = async (
     const { id } = req.params;
     const foundDepartment = departmentModel.findById(id);
     if (!foundDepartment) {
-      return next(new ErrorHandler("DepartmentNotFound", 404));
+      return next(new ErrorHandler('DepartmentNotFound', 404));
     }
     // delete department
     await foundDepartment.deleteOne();
@@ -115,10 +115,10 @@ export const deleteDepatment = async (
     // Successfully deleted department
     return res
       .status(201)
-      .json({ success: true, message: "SuccessfullDeletedDepartment" });
+      .json({ success: true, message: 'SuccessfullDeletedDepartment' });
   } catch (err: any) {
     // Create new department faced an error and return Error
-    return next(new ErrorHandler(err.message || "InternalServerError", 500));
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
   }
 };
 
@@ -134,6 +134,6 @@ export const getAllDepartments = async (
     // Successfull fetch Departments from DB and return to frontend
     return res.status(200).json({ success: true, allDepartments });
   } catch (err: any) {
-    return next(new ErrorHandler(err.message || "InternalServerError", 500));
+    return next(new ErrorHandler(err.message || 'InternalServerError', 500));
   }
 };

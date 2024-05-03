@@ -1,25 +1,25 @@
-import express, { Router } from "express";
-import upload from "../middlewares/multer";
-import departmentValidator from "../validators/departmentValidator";
+import express, { Router } from 'express';
+import upload from '../middlewares/multer';
+import departmentValidator from '../validators/departmentValidator';
 import {
   createDepatment,
   deleteDepatment,
   getAllDepartments,
   updateDepatment,
-} from "../db/controllers/departmentController";
+} from '../db/controllers/departmentController';
 
 const departmentRouter: Router = express.Router();
 
-const cpUpload = upload.fields([{ name: "avatar", maxCount: 1 }]);
+const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }]);
 
-departmentRouter.post("/add", cpUpload, departmentValidator, createDepatment);
-departmentRouter.get("/all", getAllDepartments);
+departmentRouter.post('/add', cpUpload, departmentValidator, createDepatment);
+departmentRouter.get('/all', getAllDepartments);
 departmentRouter.post(
-  "/update",
+  '/update',
   cpUpload,
   departmentValidator,
   updateDepatment
 );
-departmentRouter.get("/delete", deleteDepatment);
+departmentRouter.get('/delete', deleteDepatment);
 
 export default departmentRouter;
