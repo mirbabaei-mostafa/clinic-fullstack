@@ -1,0 +1,13 @@
+{
+  "ChooseAccountType": "Choose Account Type",
+  "Doctor": "Doctor",
+  "Patient": "Patient",
+  "User": "Employee",
+  "FillOutForm": "Please fill out the form below to get started",
+  "Email": "Email",
+  "Password": "Password",
+  "Forgot": "Forgot?",
+  "Signup": "Signup",
+  "NoAccount": "No Accouont?",
+  "Login": "Login"
+}

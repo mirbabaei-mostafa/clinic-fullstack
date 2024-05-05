@@ -1,0 +1,14 @@
+{
+  "ChooseAccountType": "Wählen Sie bitte Ihr Kontotyp aus",
+  "Hello": "Hallo",
+  "Doctor": "Arzt/Ärztin",
+  "Patient": "Patient/Patientin",
+  "User": "Kollege/Kollegin",
+  "FillOutForm": "Fühlen Sie bitte den Formular auf, um Sie zu starten",
+  "Email": "E-Mail",
+  "Password": "Passwort",
+  "Forgot": "Vergessen?",
+  "Signup": "Regestriren",
+  "NoAccount": "Kein Konto?",
+  "Login": "Anmeldung"
+}
