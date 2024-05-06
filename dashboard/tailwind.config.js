@@ -24,6 +24,11 @@ export default {
           DEFAULT: '#b1b1b1',
           dark: '#808080',
         },
+        myred: {
+          light: '#fa826f',
+          DEFAULT: '#fe4123',
+          dark: '#bd1a01',
+        },
       },
     },
     fontFamily: {

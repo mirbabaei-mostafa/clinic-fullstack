@@ -1,13 +1,41 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { BsCheckLg, BsEnvelope, BsLock } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
+import * as yup from 'yup';
+import ErrorTooltip from '../../components/ErrorTooltip';
 
 const Login = () => {
   const [accountType, setAccountType] = useState<string>('User');
   const [fieldSelect, setFieldSelect] = useState<string>('');
-  const [loginShow, setLoginShow] = useState<boolean>(false);
   const { t } = useTranslation();
+
+  const yupSchema = yup.object().shape({
+    email: yup.string().required(t('EmailRequired')).email(t('EmailFormat')),
+    password: yup
+      .string()
+      .required(t('PasswordRequired'))
+      .min(12, 'PasswordMin12'),
+  });
+  interface UserI extends yup.InferType<typeof yupSchema> {
+    email: string;
+    password: string;
+  }
+  const {
+    register,
+    handleSubmit,
+    getFieldState,
+    formState: { errors, isDirty, isValid },
+  } = useForm<UserI>({
+    resolver: yupResolver(yupSchema),
+  });
+
+  const onSubmitHandler: SubmitHandler<UserI> = async (data: UserI) => {
+    // dispatch(doAuth(data));
+  };
+
   return (
     <div className="flex flex-col m-auto w-[90vw] md:w-[34vw] bg-white rounded-md p-4 md:p-7 items-center justify-between">
       <div className="pb-4">
@@ -84,7 +112,7 @@ const Login = () => {
         <h3 className="text-[14px]">{t('FillOutForm')}</h3>
       </div>
       <div className="w-full">
-        <form>
+        <form onSubmit={handleSubmit(onSubmitHandler)}>
           <div className="flex flex-col items-center justify-between gap-7 w-full">
             <div
               className={
@@ -98,6 +126,7 @@ const Login = () => {
                 <BsEnvelope size={26} />
               </div>
               <input
+                {...register('email')}
                 type="text"
                 placeholder={t('Email')}
                 onFocus={() => setFieldSelect('Email')}
@@ -113,6 +142,13 @@ const Login = () => {
               >
                 {t('Email')}
               </div>
+              {errors.email && (
+                <ErrorTooltip
+                  message={errors.email?.message as string}
+                  hpos="right"
+                  vpos="top"
+                />
+              )}
             </div>
             <div
               className={
@@ -126,6 +162,7 @@ const Login = () => {
                 <BsLock size={26} />
               </div>
               <input
+                {...register('password')}
                 type="text"
                 placeholder={t('Password')}
                 onFocus={() => setFieldSelect('Password')}
@@ -150,6 +187,13 @@ const Login = () => {
               >
                 {t('Password')}
               </div>
+              {errors.password && (
+                <ErrorTooltip
+                  message={errors.password?.message as string}
+                  hpos="right"
+                  vpos="top"
+                />
+              )}
             </div>
             <div className="flex flex-row gap-6 justify-between items-center w-full">
               <div className="font-text font-normal text-[16px]">
@@ -162,7 +206,15 @@ const Login = () => {
                 </Link>
               </div>
               <div className="">
-                <button className="font-special font-bold text-[16px] rounded-md px-4 py-2 text-white bg-myblue-light">
+                <button
+                  disabled={
+                    !(
+                      getFieldState('email').isDirty &&
+                      getFieldState('password').isDirty
+                    )
+                  }
+                  className="font-special font-bold text-[16px] rounded-md px-4 py-2 text-white bg-myblue-light disabled:bg-mygray-dark"
+                >
                   {t('Login')}
                 </button>
               </div>

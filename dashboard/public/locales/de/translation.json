@@ -10,5 +10,9 @@
   "Forgot": "Vergessen?",
   "Signup": "Regestriren",
   "NoAccount": "Kein Konto?",
-  "Login": "Anmeldung"
+  "Login": "Anmeldung",
+  "EmailRequired": "Die E-Mail ist unbedingt!",
+  "EmailFormat": "Das Format der E-Mail ist falsch!",
+  "PasswordRequired": "Das Passwort ist unbedingt!",
+  "PasswordMin12": "Das Passwort muss mindestens 12 Buchschtaben!"
 }

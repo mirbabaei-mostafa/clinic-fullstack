@@ -9,5 +9,9 @@
   "Forgot": "Forgot?",
   "Signup": "Signup",
   "NoAccount": "No Accouont?",
-  "Login": "Login"
+  "Login": "Login",
+  "EmailRequired": "Email is required!",
+  "EmailFormat": "Email's format is wrong!",
+  "PasswordRequired": "Password is required!",
+  "PasswordMin12": "Password have to be at least 12 characters!"
 }
